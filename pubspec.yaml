@@ -21,4 +21,9 @@ dev_dependencies:
 flutter_icons:
   android: true
   ios: true
-  image_path: "images/i.webp" # Замените путь на ваш файл
+  image_path: "images/makadamia.png" # Используем PNG вместо WEBP
+
+flutter:
+  uses-material-design: true
+  assets:
+    - images/makadamia.png
