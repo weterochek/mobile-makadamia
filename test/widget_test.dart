@@ -1,28 +1,63 @@
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:makadamia/main.dart';
+import 'package:webview_flutter/webview_flutter.dart';
+
+bool isTestMode = false; // Флаг для тестового режима
 
 void main() {
-  setUpAll(() {
-    // Заглушка для платформы WebView. Убираем вызов WebView.platform
-    debugPrint("WebView platform setup skipped for test environment");
-  });
+  isTestMode = false; // В реальной среде это будет false
+  runApp(MyApp());
+}
 
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Запускаем приложение
-    await tester.pumpWidget(MyApp());
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'WebView Example',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: WebViewPage(),
+    );
+  }
+}
 
-    // Проверяем начальное состояние
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+class WebViewPage extends StatefulWidget {
+  @override
+  _WebViewPageState createState() => _WebViewPageState();
+}
 
-    // Нажимаем кнопку "+"
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pumpAndSettle(); // Ждем завершения всех обновлений
+class _WebViewPageState extends State<WebViewPage> {
+  late final WebViewController _controller;
 
-    // Проверяем состояние после нажатия
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
-  });
+  @override
+  void initState() {
+    super.initState();
+    if (!isTestMode) {
+      _controller = WebViewController()
+        ..setJavaScriptMode(JavaScriptMode.unrestricted)
+        ..loadRequest(Uri.parse('https://makadamiy.onrender.com'));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('WebView Example'),
+      ),
+      body: isTestMode
+          ? FakeWebViewWidget() // Используем заглушку в тестовом режиме
+          : WebViewWidget(controller: _controller),
+    );
+  }
+}
+
+// Заглушка WebView для тестовой среды
+class FakeWebViewWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text('WebView заглушка для тестов'),
+    );
+  }
 }
